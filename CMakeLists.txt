@@ -1724,6 +1724,7 @@ love_disable_warnings(love_3p_box2d love_3p_enet love_3p_luasocket love_3p_physf
 if(LOVE_LIBRETRO)
 set(LOVE_SRC_LIBRETRO
 	src/libretro/main.cpp
+	src/libretro/Window.cpp
 )
 endif()
 

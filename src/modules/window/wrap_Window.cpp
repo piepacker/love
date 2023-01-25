@@ -20,6 +20,7 @@
 
 #include "wrap_Window.h"
 #include "sdl/Window.h"
+#include "libretro/Window.h"
 
 namespace love
 {
@@ -657,7 +658,11 @@ extern "C" int luaopen_love_window(lua_State *L)
 {
 	Window *instance = instance();
 	if (instance == nullptr)
+#ifdef LOVE_BUILD_LIBRETRO
+		luax_catchexcept(L, [&](){ instance = new love::window::libretro::Window(); });
+#else
 		luax_catchexcept(L, [&](){ instance = new love::window::sdl::Window(); });
+#endif
 	else
 		instance->retain();
 
