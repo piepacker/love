@@ -2045,6 +2045,35 @@ const char *OpenGL::debugTypeString(GLenum type)
 	}
 }
 
+void OpenGL::restoreState()
+{
+	glBindVertexArray(state.vao);
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, state.boundFramebuffers[0]);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, state.boundFramebuffers[1]);
+
+	glUseProgram(state.currentProgram);
+
+	for (int i = 0; i < (int) BUFFER_MAX_ENUM; i++)
+	{
+		glBindBuffer(getGLBufferType((BufferType) i), state.boundBuffers[i]);
+	}
+
+	for (int target = 0; target < (int) TEXTURE_MAX_ENUM; target++)
+	{
+		for (int unit = 0; unit < state.boundTextures[target].size(); unit++) {
+			glActiveTexture(GL_TEXTURE0 + unit);
+			glBindTexture(getGLTextureType((TextureType)target), state.boundTextures[target][unit]);
+		}
+	}
+
+	glActiveTexture(GL_TEXTURE0 + state.curTextureUnit);
+
+	for (int i = 0; i < (int) ENABLE_MAX_ENUM; i++)
+	{
+		setEnableState((EnableState)i, state.enableState[i]);
+	}
+}
 
 // OpenGL class instance singleton.
 OpenGL gl;

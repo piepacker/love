@@ -23,6 +23,7 @@
 // LOVE
 #include "common/config.h"
 #include "graphics/Graphics.h"
+#include "graphics/opengl/OpenGL.h"
 #include "Window.h"
 
 namespace love
@@ -576,6 +577,7 @@ void Window::setVSync(int vsync)
 void Window::swapBuffers()
 {
 	g_retro_video(RETRO_HW_FRAME_BUFFER_VALID, windowWidth, windowHeight, windowWidth * 4);
+	love::graphics::opengl::gl.restoreState();
 }
 
 } // namespace libretro
