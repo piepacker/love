@@ -174,8 +174,8 @@ RETRO_API bool retro_load_game(const struct retro_game_info *game)
     // Not sure this is the best place
     hw_context_setup();
 
-	int argc = 0;
-	char **argv = nullptr;
+	int argc = 2;
+	const char *argv[2] = { "love", game->path };
 
 	// Add love to package.preload for easy requiring.
 	love_preload(L, luaopen_love, "love");
