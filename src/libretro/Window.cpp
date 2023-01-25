@@ -55,6 +55,17 @@ bool Window::setWindow(int width, int height, WindowSettings *settings)
 	if (graphics.get() && graphics->isCanvasActive())
 		throw love::Exception("love.window.setMode cannot be called while a Canvas is active in love.graphics.");
 
+	struct retro_game_geometry geo = {
+		.base_width = (unsigned)width,
+		.base_height = (unsigned)height,
+		.max_width = (unsigned)width,
+		.max_height = (unsigned)height,
+		.aspect_ratio = 0.0f,
+	};
+	if (!g_retro_set_env(RETRO_ENVIRONMENT_SET_GEOMETRY, &geo)) {
+		fprintf(stderr, "failed to set geometry\n");
+	}
+
 	WindowSettings f;
 
 	if (settings)

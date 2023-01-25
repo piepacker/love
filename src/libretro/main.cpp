@@ -77,10 +77,10 @@ RETRO_API void retro_get_system_info(struct retro_system_info *info)
 
 RETRO_API void retro_get_system_av_info(struct retro_system_av_info *info)
 {
-    info->geometry.base_width = 256;
-    info->geometry.base_height = 256;
-    info->geometry.max_width = 256;
-    info->geometry.max_height = 256;
+    info->geometry.base_width = 800;
+    info->geometry.base_height = 600;
+    info->geometry.max_width = 1920;
+    info->geometry.max_height = 1080;
     info->timing.fps = 60.0;
     info->timing.sample_rate = 48000;
 }
