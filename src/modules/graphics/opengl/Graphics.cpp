@@ -56,7 +56,6 @@ namespace opengl
 
 Graphics::Graphics()
 	: windowHasStencil(false)
-	, mainVAO(0)
 {
 	gl = OpenGL();
 	Canvas::resetFormatSupport();
@@ -157,12 +156,6 @@ bool Graphics::setMode(int width, int height, int pixelwidth, int pixelheight, b
 
 	// Okay, setup OpenGL.
 	gl.initContext();
-
-	if (gl.isCoreProfile())
-	{
-		glGenVertexArrays(1, &mainVAO);
-		glBindVertexArray(mainVAO);
-	}
 
 	gl.setupContext();
 
@@ -282,12 +275,6 @@ void Graphics::unSetMode()
 
 	framebufferObjects.clear();
 	temporaryCanvases.clear();
-
-	if (mainVAO != 0)
-	{
-		glDeleteVertexArrays(1, &mainVAO);
-		mainVAO = 0;
-	}
 
 	gl.deInitContext();
 

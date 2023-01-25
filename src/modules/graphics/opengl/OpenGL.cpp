@@ -204,6 +204,13 @@ void OpenGL::setupContext()
 
 	initMaxValues();
 
+	if (gl.isCoreProfile()) {
+		glGenVertexArrays(1, &state.vao);
+		glBindVertexArray(state.vao);
+	} else {
+		state.vao = 0;
+	}
+
 	GLfloat glcolor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glVertexAttrib4fv(ATTRIB_COLOR, glcolor);
 	glVertexAttrib4fv(ATTRIB_CONSTANTCOLOR, glcolor);
@@ -306,6 +313,9 @@ void OpenGL::deInitContext()
 			state.defaultTexture[i] = 0;
 		}
 	}
+
+	glDeleteVertexArrays(1, &state.vao);
+	state.vao = 0;
 
 	contextInitialized = false;
 }
