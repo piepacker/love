@@ -29,6 +29,8 @@
 #include "graphics/Graphics.h"
 #include "graphics/Buffer.h"
 
+#include "libretro/global.h"
+
 // C++
 #include <algorithm>
 #include <limits>
@@ -988,6 +990,8 @@ GLuint OpenGL::getDefaultFBO() const
 	SDL_VERSION(&info.version);
 	SDL_GetWindowWMInfo(SDL_GL_GetCurrentWindow(), &info);
 	return info.info.uikit.framebuffer;
+#elif defined(LOVE_BUILD_LIBRETRO)
+	return g_retro_get_current_framebuffer();
 #else
 	return 0;
 #endif

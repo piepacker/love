@@ -18,7 +18,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  **/
 
-#include "libretro.h"
+#include "libretro/global.h"
+
 #include "common/version.h"
 #include "common/runtime.h"
 #include "modules/love/love.h"
@@ -32,14 +33,17 @@ extern "C" {
 
 static lua_State *L = nullptr;
 
-static retro_environment_t set_env = nullptr;
+retro_environment_t g_retro_set_env = nullptr;
+retro_video_refresh_t g_retro_video = nullptr;
+retro_hw_get_current_framebuffer_t g_retro_get_current_framebuffer = nullptr;
 
 RETRO_API void retro_set_environment(retro_environment_t env) {
-    set_env = env;
+    g_retro_set_env = env;
 }
 
 RETRO_API void retro_set_video_refresh(retro_video_refresh_t sendFrame)
 {
+    g_retro_video = sendFrame;
 }
 
 RETRO_API void retro_set_audio_sample(retro_audio_sample_t sendAudioSample)
@@ -128,8 +132,48 @@ RETRO_API void retro_deinit() {
     L = nullptr;
 }
 
+static void hw_context_reset()
+{
+    fprintf(stderr, "hw_context_reset not implemented\n");
+}
+
+static void hw_context_destroy()
+{
+    fprintf(stderr, "hw_context_destroy not implemented\n");
+}
+
+static void hw_context_setup()
+{
+    retro_pixel_format pf = RETRO_PIXEL_FORMAT_XRGB8888;
+    if (!g_retro_set_env(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &pf)) {
+        fprintf(stderr, "failed to set pixel format\n");
+    }
+
+    retro_hw_render_callback hw_render_callback = {};
+    hw_render_callback.context_reset = hw_context_reset;
+    hw_render_callback.context_destroy = hw_context_destroy;
+
+    hw_render_callback.bottom_left_origin = true;
+    hw_render_callback.stencil = true;
+    hw_render_callback.depth = true;
+    //hw_render_callback.context_type = RETRO_HW_CONTEXT_OPENGLES_VERSION;
+    hw_render_callback.context_type = RETRO_HW_CONTEXT_OPENGL_CORE;
+    hw_render_callback.version_major = 4;
+    hw_render_callback.version_minor = 5;
+    hw_render_callback.debug_context = true;
+
+    int res = g_retro_set_env(RETRO_ENVIRONMENT_SET_HW_RENDER, &hw_render_callback);
+    fprintf(stderr, "SET_HW_RENDER:%d\n", res);
+    if (res) {
+        g_retro_get_current_framebuffer = hw_render_callback.get_current_framebuffer;
+    }
+}
+
 RETRO_API bool retro_load_game(const struct retro_game_info *game)
 {
+    // Not sure this is the best place
+    hw_context_setup();
+
 	int argc = 0;
 	char **argv = nullptr;
 

@@ -18,6 +18,8 @@
  * 3. This notice may not be removed or altered from any source distribution.
  **/
 
+#include "libretro/global.h"
+
 // LOVE
 #include "common/config.h"
 #include "graphics/Graphics.h"
@@ -31,9 +33,9 @@ namespace libretro
 {
 
 Window::Window()
-    : open(false)
-    , window(nullptr)
-{
+	: open(false)
+	  , window(nullptr)
+	{
 }
 
 Window::~Window()
@@ -59,9 +61,18 @@ bool Window::setWindow(int width, int height, WindowSettings *settings)
 		f = *settings;
 
     // TODO create window + context ?
-    open = true;
+	updateSettings(f, false);
 
-    return true;
+	if (graphics.get())
+	{
+		double scaledw, scaledh;
+		fromPixels((double) pixelWidth, (double) pixelHeight, scaledw, scaledh);
+		graphics->setMode((int) scaledw, (int) scaledh, pixelWidth, pixelHeight, f.stencil);
+	}
+
+	open = true; // not sure about this one
+
+	return true;
 }
 
 void Window::getWindow(int &width, int &height, WindowSettings &newsettings)
@@ -91,7 +102,7 @@ void Window::close(bool allowExceptions)
 		graphics->unSetMode();
 	}
 
-    // TODO destroy window/context ? 
+	// TODO destroy window/context ? 
 	open = false;
 }
 
@@ -108,7 +119,7 @@ bool Window::setFullscreen(bool fullscreen, Window::FullscreenType fstype)
 	if (graphics.get() && graphics->isCanvasActive())
 		throw love::Exception("love.window.setFullscreen cannot be called while a Canvas is active in love.graphics.");
 
-    return true;
+	return true;
 }
 
 int Window::getDisplayCount() const
@@ -118,7 +129,7 @@ int Window::getDisplayCount() const
 
 void Window::updateSettings(const WindowSettings &newsettings, bool updateGraphicsViewport)
 {
-    // TODO
+	// TODO
 }
 
 bool Window::onSizeChanged(int width, int height)
@@ -144,19 +155,19 @@ bool Window::onSizeChanged(int width, int height)
 bool Window::hasFocus() const
 {
 	//return (window && SDL_GetKeyboardFocus() == window);
-    return true;
+	return true;
 }
 
 bool Window::hasMouseFocus() const
 {
 	//return (window && SDL_GetMouseFocus() == window);
-    return false;
+	return false;
 }
 
 bool Window::isVisible() const
 {
 	//return window && (SDL_GetWindowFlags(window) & SDL_WINDOW_SHOWN) != 0;
-    return true;
+	return true;
 }
 
 void Window::setMouseGrab(bool grab)
@@ -172,7 +183,7 @@ bool Window::isMouseGrabbed() const
 	//	return SDL_GetWindowGrab(window) != SDL_FALSE;
 	//else
 	//	return mouseGrabbed;
-    return false;
+	return false;
 }
 
 int Window::getWidth() const
@@ -292,8 +303,8 @@ const void *Window::getHandle() const
 
 void Window::minimize()
 {
-//	if (window != nullptr)
-//		SDL_MinimizeWindow(window);
+	//	if (window != nullptr)
+	//		SDL_MinimizeWindow(window);
 }
 
 void Window::maximize()
@@ -317,13 +328,13 @@ void Window::restore()
 bool Window::isMaximized() const
 {
 	//return window != nullptr && (SDL_GetWindowFlags(window) & SDL_WINDOW_MAXIMIZED);
-    return false;
+	return false;
 }
 
 bool Window::isMinimized() const
 {
 	//return window != nullptr && (SDL_GetWindowFlags(window) & SDL_WINDOW_MINIMIZED);
-    return false;
+	return false;
 }
 
 void Window::setDisplaySleepEnabled(bool enable)
@@ -337,7 +348,7 @@ void Window::setDisplaySleepEnabled(bool enable)
 bool Window::isDisplaySleepEnabled() const
 {
 	//return SDL_IsScreenSaverEnabled() != SDL_FALSE;
-    return false;
+	return false;
 }
 
 void Window::setWindowTitle(const std::string &title)
@@ -351,25 +362,25 @@ void Window::setWindowTitle(const std::string &title)
 
 bool Window::showMessageBox(const std::string &title, const std::string &message, MessageBoxType type, bool attachtowindow)
 {
-    return false;
+	return false;
 }
 
 int Window::showMessageBox(const MessageBoxData &data)
 {
-    return 0; // OR maybe -2
+	return 0; // OR maybe -2
 }
 
 int Window::getVSync() const
 {
 	//return context != nullptr ? SDL_GL_GetSwapInterval() : 0;
-    return 0;
+	return 0;
 }
 
 std::vector<Window::WindowSize> Window::getFullscreenSizes(int displayindex) const
 {
 	std::vector<WindowSize> sizes;
-    WindowSize w = {windowWidth, windowHeight};
-    sizes.push_back(w);
+	WindowSize w = {windowWidth, windowHeight};
+	sizes.push_back(w);
 
 	//for (int i = 0; i < SDL_GetNumDisplayModes(displayindex); i++)
 	//{
@@ -408,7 +419,7 @@ void Window::getDesktopDimensions(int displayindex, int &width, int &height) con
 love::image::ImageData *Window::getIcon()
 {
 	//return icon.get();
-    return nullptr;
+	return nullptr;
 }
 
 bool Window::setIcon(love::image::ImageData *imgd)
@@ -459,7 +470,7 @@ bool Window::setIcon(love::image::ImageData *imgd)
 
 	return true;
 #else
-    return false;
+	return false;
 #endif
 }
 
@@ -529,13 +540,13 @@ const std::string &Window::getWindowTitle() const
 
 const char *Window::getDisplayName(int displayindex) const
 {
-    return "dispaly name";
+	return "dispaly name";
 }
 
 void Window::getPosition(int &x, int &y, int &displayindex)
 {
-    x = y =  0;
-    displayindex = 0;
+	x = y =  0;
+	displayindex = 0;
 }
 
 const char *Window::getName() const
@@ -553,6 +564,7 @@ void Window::setVSync(int vsync)
 
 void Window::swapBuffers()
 {
+	g_retro_video(RETRO_HW_FRAME_BUFFER_VALID, windowWidth, windowHeight, windowWidth * 4);
 }
 
 } // namespace libretro
