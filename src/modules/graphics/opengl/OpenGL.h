@@ -502,6 +502,7 @@ private:
 
 		GLuint defaultTexture[TEXTURE_MAX_ENUM];
 
+		GLuint currentProgram;
 	} state;
 
 }; // OpenGL

@@ -979,6 +979,7 @@ bool OpenGL::hasDepthWrites() const
 void OpenGL::useProgram(GLuint program)
 {
 	glUseProgram(program);
+	state.currentProgram = program;
 	++stats.shaderSwitches;
 }
 
