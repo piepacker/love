@@ -2083,6 +2083,17 @@ void OpenGL::restoreState()
 	{
 		setEnableState((EnableState)i, state.enableState[i]);
 	}
+
+
+	{
+		const Rect& v = state.viewport;
+		glViewport(v.x, v.y, v.w, v.h);
+	}
+	{
+		// I think this is wrong when there is no canvas
+		const Rect& v = state.scissor;
+		glScissor(v.x, v.y, v.w, v.h);
+	}
 }
 
 // OpenGL class instance singleton.
