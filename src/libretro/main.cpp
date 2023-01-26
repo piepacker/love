@@ -23,6 +23,7 @@
 #include "common/version.h"
 #include "common/runtime.h"
 #include "modules/love/love.h"
+#include "graphics/opengl/OpenGL.h"
 
 // Lua
 extern "C" {
@@ -238,6 +239,9 @@ RETRO_API void retro_run() {
     if (!L) {
         return;
     }
+
+	// Restore GL state of the game
+	love::graphics::opengl::gl.restoreState();
 
 	int stackpos = lua_gettop(L);
 	int nres;

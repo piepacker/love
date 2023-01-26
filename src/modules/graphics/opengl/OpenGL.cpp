@@ -2047,6 +2047,9 @@ const char *OpenGL::debugTypeString(GLenum type)
 
 void OpenGL::restoreState()
 {
+	if (!contextInitialized)
+		return;
+
 	glBindVertexArray(state.vao);
 
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, state.boundFramebuffers[0]);
