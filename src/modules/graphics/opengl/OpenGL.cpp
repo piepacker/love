@@ -59,6 +59,13 @@ namespace opengl
 
 static void *LOVEGetProcAddress(const char *name)
 {
+#ifdef LOVE_BUILD_LIBRETRO
+	if (g_retro_get_proc_address) {
+		void* p = (void*)g_retro_get_proc_address(name);
+		return p;
+	}
+#endif
+
 #ifdef LOVE_ANDROID
 	void *proc = dlsym(RTLD_DEFAULT, name);
 	if (proc)

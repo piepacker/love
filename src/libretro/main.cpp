@@ -37,6 +37,7 @@ static lua_State *L = nullptr;
 retro_environment_t g_retro_set_env = nullptr;
 retro_video_refresh_t g_retro_video = nullptr;
 retro_hw_get_current_framebuffer_t g_retro_get_current_framebuffer = nullptr;
+retro_hw_get_proc_address_t g_retro_get_proc_address = nullptr;
 
 RETRO_API void retro_set_environment(retro_environment_t env) {
     g_retro_set_env = env;
@@ -166,7 +167,8 @@ static void hw_context_setup()
     int res = g_retro_set_env(RETRO_ENVIRONMENT_SET_HW_RENDER, &hw_render_callback);
     fprintf(stderr, "SET_HW_RENDER:%d\n", res);
     if (res) {
-        g_retro_get_current_framebuffer = hw_render_callback.get_current_framebuffer;
+		g_retro_get_current_framebuffer = hw_render_callback.get_current_framebuffer;
+		g_retro_get_proc_address = hw_render_callback.get_proc_address;
     }
 }
 
