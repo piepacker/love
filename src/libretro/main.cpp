@@ -150,7 +150,7 @@ static void hw_context_setup()
         fprintf(stderr, "failed to set pixel format\n");
     }
 
-    retro_hw_render_callback hw_render_callback = {};
+    static retro_hw_render_callback hw_render_callback = {};
     hw_render_callback.context_reset = hw_context_reset;
     hw_render_callback.context_destroy = hw_context_destroy;
 
