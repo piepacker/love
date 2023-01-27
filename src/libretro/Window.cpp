@@ -510,10 +510,7 @@ Window::DisplayOrientation Window::getDisplayOrientation(int displayindex) const
 
 Rect Window::getSafeArea() const
 {
-#if defined(LOVE_IOS)
-	if (window != nullptr)
-		return love::ios::getSafeArea(window);
-#elif defined(LOVE_ANDROID)
+#if defined(LOVE_ANDROID)
 	if (window != nullptr)
 	{
 		int top, left, bottom, right;
