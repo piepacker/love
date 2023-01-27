@@ -2057,13 +2057,6 @@ void OpenGL::restoreState()
 	if (!contextInitialized)
 		return;
 
-	glBindVertexArray(state.vao);
-
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, state.boundFramebuffers[0]);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, state.boundFramebuffers[1]);
-
-	glUseProgram(state.currentProgram);
-
 	for (int i = 0; i < (int) BUFFER_MAX_ENUM; i++)
 	{
 		glBindBuffer(getGLBufferType((BufferType) i), state.boundBuffers[i]);
@@ -2076,7 +2069,6 @@ void OpenGL::restoreState()
 			glBindTexture(getGLTextureType((TextureType)target), state.boundTextures[target][unit]);
 		}
 	}
-
 	glActiveTexture(GL_TEXTURE0 + state.curTextureUnit);
 
 	for (int i = 0; i < (int) ENABLE_MAX_ENUM; i++)
@@ -2084,6 +2076,7 @@ void OpenGL::restoreState()
 		setEnableState((EnableState)i, state.enableState[i]);
 	}
 
+	glCullFace(state.faceCullMode);
 
 	{
 		const Rect& v = state.viewport;
@@ -2094,6 +2087,17 @@ void OpenGL::restoreState()
 		const Rect& v = state.scissor;
 		glScissor(v.x, v.y, v.w, v.h);
 	}
+
+	setPointSize(state.pointSize);
+
+	setDepthWrites(state.depthWritesEnabled);
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, state.boundFramebuffers[0]);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, state.boundFramebuffers[1]);
+
+	glUseProgram(state.currentProgram);
+
+	glBindVertexArray(state.vao);
 }
 
 // OpenGL class instance singleton.
