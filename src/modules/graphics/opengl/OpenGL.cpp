@@ -29,6 +29,8 @@
 #include "graphics/Graphics.h"
 #include "graphics/Buffer.h"
 
+#include "libretro/global.h"
+
 // C++
 #include <algorithm>
 #include <limits>
@@ -57,6 +59,13 @@ namespace opengl
 
 static void *LOVEGetProcAddress(const char *name)
 {
+#ifdef LOVE_BUILD_LIBRETRO
+	if (g_retro_get_proc_address) {
+		void* p = (void*)g_retro_get_proc_address(name);
+		return p;
+	}
+#endif
+
 #ifdef LOVE_ANDROID
 	void *proc = dlsym(RTLD_DEFAULT, name);
 	if (proc)
@@ -202,6 +211,13 @@ void OpenGL::setupContext()
 
 	initMaxValues();
 
+	if (gl.isCoreProfile()) {
+		glGenVertexArrays(1, &state.vao);
+		glBindVertexArray(state.vao);
+	} else {
+		state.vao = 0;
+	}
+
 	GLfloat glcolor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 	glVertexAttrib4fv(ATTRIB_COLOR, glcolor);
 	glVertexAttrib4fv(ATTRIB_CONSTANTCOLOR, glcolor);
@@ -304,6 +320,9 @@ void OpenGL::deInitContext()
 			state.defaultTexture[i] = 0;
 		}
 	}
+
+	glDeleteVertexArrays(1, &state.vao);
+	state.vao = 0;
 
 	contextInitialized = false;
 }
@@ -977,6 +996,7 @@ bool OpenGL::hasDepthWrites() const
 void OpenGL::useProgram(GLuint program)
 {
 	glUseProgram(program);
+	state.currentProgram = program;
 	++stats.shaderSwitches;
 }
 
@@ -988,6 +1008,8 @@ GLuint OpenGL::getDefaultFBO() const
 	SDL_VERSION(&info.version);
 	SDL_GetWindowWMInfo(SDL_GL_GetCurrentWindow(), &info);
 	return info.info.uikit.framebuffer;
+#elif defined(LOVE_BUILD_LIBRETRO)
+	return g_retro_get_current_framebuffer();
 #else
 	return 0;
 #endif
@@ -2030,6 +2052,53 @@ const char *OpenGL::debugTypeString(GLenum type)
 	}
 }
 
+void OpenGL::restoreState()
+{
+	if (!contextInitialized)
+		return;
+
+	for (int i = 0; i < (int) BUFFER_MAX_ENUM; i++)
+	{
+		glBindBuffer(getGLBufferType((BufferType) i), state.boundBuffers[i]);
+	}
+
+	for (int target = 0; target < (int) TEXTURE_MAX_ENUM; target++)
+	{
+		for (int unit = 0; unit < state.boundTextures[target].size(); unit++) {
+			glActiveTexture(GL_TEXTURE0 + unit);
+			glBindTexture(getGLTextureType((TextureType)target), state.boundTextures[target][unit]);
+		}
+	}
+	glActiveTexture(GL_TEXTURE0 + state.curTextureUnit);
+
+	for (int i = 0; i < (int) ENABLE_MAX_ENUM; i++)
+	{
+		setEnableState((EnableState)i, state.enableState[i]);
+	}
+
+	glCullFace(state.faceCullMode);
+
+	{
+		const Rect& v = state.viewport;
+		glViewport(v.x, v.y, v.w, v.h);
+	}
+	{
+		// I think this is wrong when there is no canvas
+		const Rect& v = state.scissor;
+		glScissor(v.x, v.y, v.w, v.h);
+	}
+
+	setPointSize(state.pointSize);
+
+	setDepthWrites(state.depthWritesEnabled);
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, state.boundFramebuffers[0]);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, state.boundFramebuffers[1]);
+
+	glUseProgram(state.currentProgram);
+
+	glBindVertexArray(state.vao);
+}
 
 // OpenGL class instance singleton.
 OpenGL gl;

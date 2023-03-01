@@ -444,6 +444,11 @@ public:
 	static const char *debugSourceString(GLenum source);
 	static const char *debugTypeString(GLenum type);
 
+	/**
+	 * Restore the openGL state that might have been overwritten by the libretro frontend
+	 **/
+	void restoreState();
+
 private:
 
 	void initVendor();
@@ -502,6 +507,9 @@ private:
 
 		GLuint defaultTexture[TEXTURE_MAX_ENUM];
 
+		GLuint currentProgram;
+
+		GLuint vao;
 	} state;
 
 }; // OpenGL
